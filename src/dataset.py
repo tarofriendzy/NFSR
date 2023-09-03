@@ -1,6 +1,4 @@
-"""
-训练数据集
-"""
+
 import io
 import os
 import re
@@ -10,17 +8,13 @@ from config import get_default_config
 
 
 def build_label(config):
-    """
-    创建标签，不同编译器下的同名文件标为 1 (相似)，不同文件名标为 -1 (不相似)
-    :param config:
-    :return:
-    """
+
     filename_conf = config['file_names']
     output_dir = config['output_dir']
 
     binary_output_path_file = os.path.join(output_dir, filename_conf['binary_output_path'])
     if not os.path.exists(binary_output_path_file) or not os.path.isfile(binary_output_path_file):
-        raise ValueError('请先构建二进制文件的信息')
+        raise ValueError('File error')
 
     binary_output_paths = []
     filenames = []
@@ -38,7 +32,7 @@ def build_label(config):
                         binary_dataset_type.append(i)
 
     if len(binary_output_paths) == 0:
-        raise ValueError('请先构建二进制文件的信息')
+        raise ValueError('file error')
 
     label_writer = io.open(os.path.join(output_dir, filename_conf['graph_match_labels']), 'w')
     for i in range(len(binary_output_paths)):
@@ -52,15 +46,10 @@ def build_label(config):
 
 
 def read_label(config):
-    """
-    读取标签信息
-    :param config:
-    :return:
-    """
     filename_conf = config['file_names']
     label_file = os.path.join(config['output_dir'], filename_conf['graph_match_labels'])
     if not os.path.exists(label_file) or not os.path.isfile(label_file):
-        raise ValueError('构建图匹配的标签')
+        raise ValueError('label error')
 
     edge_filename = filename_conf['edge_list']
     node_embedding = filename_conf['node_index_to_embedding']
@@ -97,11 +86,6 @@ def read_label(config):
 
 
 def read_node_embedding(g_path, config):
-    """
-    读取节点的嵌入
-    :param config:
-    :return:
-    """
     node_embedding_dict = dict()
     line_mum = 1
     index = None
@@ -122,12 +106,6 @@ def read_node_embedding(g_path, config):
 
 
 def read_edge_list(g_path, config):
-    """
-    读取边的信息
-    :param g_path:
-    :param config:
-    :return:
-    """
     from_nodes = []
     to_nodes = []
     nodes = []
@@ -149,11 +127,6 @@ def read_edge_list(g_path, config):
 
 
 def read_node_info(g_path, config):
-    """
-    按照边的信息，读取节点
-    :param edge_file:
-    :return:
-    """
     from_nodes, to_nodes, nodes = read_edge_list(g_path, config)
     node_feature_dim = config['graph_match']['encoder']['node_feature_dim']
 
@@ -170,10 +143,7 @@ def read_node_info(g_path, config):
 
 
 def pack_graph_data(graph_pair_list, config):
-    """
-    打包图的数据，按照批次打包
-    :return:
-    """
+
     graphs = []
     for graph in graph_pair_list:
         for inergraph in graph:
@@ -215,16 +185,11 @@ def pack_graph_data(graph_pair_list, config):
 
 
 def build_dataset(config):
-    """
-    构建数据集
-    :param config:
-    :return:
-    """
+
     graph_match_conf = config['graph_match']
 
     graphs, labels = read_label(config)
 
-    # batch 处理
     batch_graphs = []
     batch_labels = []
     graphs_num = len(graphs)
@@ -238,7 +203,6 @@ def build_dataset(config):
         batch_graphs.append(x_batch)
         batch_labels.append(y_batch)
 
-    # 分割训练集和测试集
     split_index = int(np.rint(graph_match_conf['train_proportion'] * len(batch_graphs)))
     x_train, x_test = batch_graphs[:split_index], batch_graphs[split_index:]
     y_train, y_test = batch_labels[:split_index], batch_labels[split_index:]
@@ -248,5 +212,5 @@ def build_dataset(config):
 
 if __name__ == '__main__':
     config = get_default_config()
-    # build_label(config=config)
+    build_label(config=config)
     build_dataset(config)
