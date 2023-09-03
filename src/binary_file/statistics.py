@@ -33,21 +33,13 @@ def get_graphs(sofware_dir, software_name):
 
 
 def is_avaliable_cfg(graph):
-    """
-    判断图是否可用
-    :param graph:
-    :return:
-    """
-    # PLT条目
     if graph.is_plt:
         return False
     # Simprocedure
     if graph.is_simprocedure:
         return False
-    # 没有节点
     if graph.node_num == 0:
         return False
-    # 单节点并且指令数量较少(一条/没有)
     # if graph.node_num == 1 and len(graph.nodes[0]) <= 1:
     #     return False
     if graph.name.startswith('sub_'):
@@ -56,11 +48,6 @@ def is_avaliable_cfg(graph):
     return True
 
 def avaliable_graph_num(graphs):
-    """
-    可用图的数量
-    :param graphs:
-    :return:
-    """
     ava_graph_num = 0
     for graph_item in graphs:
         if is_avaliable_cfg(graph_item):
@@ -150,112 +137,4 @@ def show_node_num2(graphs, output_file):
     plt.savefig(output_file, format='svg')
 
 
-if __name__ == '__main__':
-    graph_dir = 'E:\\Binary Source\\trex\\analysis'
-    architecture = ['arm-32', 'mips-32', 'x86-32']
-    software_arm32 = ['binutils-2.30-', 'binutils-2.31-', 'binutils-2.32-', 'binutils-2.34-',
-                      'busybox-1.32.0-',
-                      'coreutils-8.15-', 'coreutils-8.25-', 'coreutils-8.29-', 'coreutils-8.30-', 'coreutils-8.31-',
-                      'coreutils-8.32-',
-                      'curl-7.71.1-',
-                      'diffutils-3.1-', 'diffutils-3.2-', 'diffutils-3.3-', 'diffutils-3.7-',
-                      'findutils-4.4.2-', 'findutils-4.6.0-', 'findutils-4.7.0-',
-                      'gmp-6.2.0-',
-                      'ImageMagick-7.0.10-27-',
-                      'libmicrohttpd-0.9.71-',
-                      'libtomcrypt-1.18.2-',
-                      'putty-0.74-',
-                      'sqlite-3.34.0-',
-                      'zlib-1.2.11-']
-    software_arm32_o0 = ['coreutils-8.26-', 'coreutils-8.27-', 'coreutils-8.28-']
-    software_mip32 = ['binutils-2.30-', 'binutils-2.31-', 'binutils-2.32-', 'binutils-2.34-',
-                      'busybox-1.32.0-',
-                      'coreutils-8.29-', 'coreutils-8.30-', 'coreutils-8.31-', 'coreutils-8.32-',
-                      'curl-7.71.1-',
-                      'diffutils-3.1-', 'diffutils-3.2-', 'diffutils-3.3-', 'diffutils-3.7-',
-                      'findutils-4.2.30-', 'findutils-4.2.31-', 'findutils-4.2.32-', 'findutils-4.2.33-',
-                      'findutils-4.4.0-', 'findutils-4.4.1-', 'findutils-4.4.2-', 'findutils-4.6.0-', 'findutils-4.7.0-'
-                      'gmp-6.2.0-',
-                      'ImageMagick-7.0.10-27-',
-                      'libmicrohttpd-0.9.71-',
-                      'libtomcrypt-1.18.2-',
-                      'putty-0.74-',
-                      'sqlite-3.34.0-',
-                      'zlib-1.2.11-']
-    software_x8632 = ['binutils-2.30-', 'binutils-2.34-',
-                      'busybox-1.32.0-',
-                      'coreutils-6.10-', 'coreutils-7.5-', 'coreutils-8.15-', 'coreutils-8.32-',
-                      'curl-7.71.1-',
-                      'diffutils-3.6-', 'diffutils-3.7-',
-                      'findutils-4.4.0-', 'findutils-4.4.2-', 'findutils-4.6.0-', 'findutils-4.7.0-'
-                                                                                  'gmp-6.2.0-',
-                      'ImageMagick-7.0.10-27-',
-                      'libmicrohttpd-0.9.71-',
-                      'libtomcrypt-1.18.2-',
-                      'putty-0.74-',
-                      'sqlite-3.34.0-',
-                      'zlib-1.2.11-']
-    optimization = ['O0', 'O1', 'O2', 'O3']
-
-    # database 1
-    # 生成软件的路径
-    # software_dir_dict = {}
-    # for arch in architecture:
-    #     if arch == 'arm-32':
-    #         software = software_arm32
-    #     elif arch == 'mips-32':
-    #         software = software_mip32
-    #     elif arch == 'x86-32':
-    #         software = software_x8632
-    #
-    #     software_dir, software_name = get_software_dir(graph_dir, arch, software, optimization)
-    #     software_dir_dict[arch] = {'software_dirs': software_dir,
-    #                                'software_names': software_name}
-    #
-    # # 获取函数的CFG
-    # graphs = []
-    # for arch, info in software_dir_dict.items():
-    #     software_dirs = info['software_dirs']
-    #     software_names = info['software_names']
-    #     for i in range(len(software_dirs)):
-    #         sf_dir = software_dirs[i]
-    #         sf_name = software_names[i]
-    #         sf_graph = get_graphs(sf_dir, sf_name)
-    #         graphs.extend(sf_graph)
-    # print('database 1')
-    # # print(avaliable_graph_num(graphs))
-    # # show_node_num(graphs, 'node_num_info_database1.svg')
-    # show_node_num2(graphs, 'node_num_info2_database1.svg')
-    # print()
-
-    # database 2
-    software_openssl = ['openssl-1.0.1f-', 'openssl-1.0.1u-']
-    openssl_dir_dict = {}
-    for arch in architecture:
-        software_dir, software_name = get_software_dir(graph_dir, arch, software_openssl, optimization)
-        openssl_dir_dict[arch] = {'software_dirs': software_dir,
-                                  'software_names': software_name}
-
-    openssl_graph = []
-    for arch, info in openssl_dir_dict.items():
-        software_dirs = info['software_dirs']
-        software_names = info['software_names']
-        for i in range(len(software_dirs)):
-            sf_dir = software_dirs[i]
-            sf_name = software_names[i]
-            sf_graph = get_graphs(sf_dir, sf_name)
-            openssl_graph.extend(sf_graph)
-    print('database 2')
-    # print(avaliable_graph_num(openssl_graph))
-    # show_node_num(openssl_graph, 'node_num_info_database2.svg')
-    # show_node_num2(openssl_graph, 'node_num_info2_database2.svg')
-    #
-    node_num = 0
-    for item in openssl_graph:
-        if is_avaliable_cfg(item):
-            node_num += item.node_num
-
-    print(node_num)
-    graph_num = avaliable_graph_num(openssl_graph)
-    print()
 
