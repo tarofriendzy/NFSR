@@ -1,7 +1,4 @@
-"""
-特征生成器
-构建二进制文件的信息, Word2Vec的数据集, Token 嵌入, 块嵌入
-"""
+
 import re
 import io
 import os
@@ -17,13 +14,6 @@ from preprocessing import preprocessing
 
 
 def articles_generator(walks, block_idx_to_tokens, output_dir, filename_config):
-    """
-    根据随机游走生成文章
-    :param filename_config:
-    :param walks:
-    :param block_idx_to_tokens:
-    :return:
-    """
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
     with open(os.path.join(output_dir, filename_config['article']), 'w') as article_writer:
@@ -38,12 +28,6 @@ def articles_generator(walks, block_idx_to_tokens, output_dir, filename_config):
 
 
 def build_info(config):
-    """
-    创建二进制文件的信息
-    :param binary_files:
-    :param output_dir:
-    :return:
-    """
     binary_dir = config['binary_dir']
     output_dir = config['output_dir']
 
@@ -81,13 +65,6 @@ def build_info(config):
 
 
 def generate_training_data(sequences, vocab_size, config):
-    """
-    根据窗口大小，负采样的数量和词汇量，
-    为序列（int编码的句子）列表生成带有负样本的skip-gram语法对
-    :param sequences: 序列
-    :param vocab_size:词汇表大小
-    :return:
-    """
     output_dir = config['output_dir']
     filename_word2vec = config['file_names']['word2vec_train_data']
 
@@ -132,11 +109,7 @@ def generate_training_data(sequences, vocab_size, config):
 
 
 def read_training_data(config):
-    """
-    读取训练数据
-    :param config:
-    :return:
-    """
+    
     word2vec_train_data_file = os.path.join(config['output_dir'], config['file_names']['word2vec_train_data'])
     if not os.path.exists(word2vec_train_data_file) or not os.path.isfile(word2vec_train_data_file):
         raise ValueError('构建Word2Vec的数据集')
@@ -168,12 +141,7 @@ def read_training_data(config):
 
 
 def record_vocab(config, vocab):
-    """
-    记录词汇表
-    :param config:
-    :param vocab:
-    :return:
-    """
+    
     output_dir = config['output_dir']
     filename_word2vec = config['file_names']['word2vec_vocab_data']
 
@@ -186,11 +154,7 @@ def record_vocab(config, vocab):
 
 
 def read_vocab(config):
-    """
-    读取词汇表
-    :param config:
-    :return:
-    """
+    
     word2vec_vocab_data_file = os.path.join(config['output_dir'], config['file_names']['word2vec_vocab_data'])
     if not os.path.exists(word2vec_vocab_data_file) or not os.path.isfile(word2vec_vocab_data_file):
         raise ValueError('构建Word2Vec的数据集')
@@ -213,11 +177,7 @@ def read_vocab(config):
 
 
 def build_data(config):
-    """
-    构建训练时所需要的数据
-    :param config:
-    :return:
-    """
+    
     filename_conf = config['file_names']
     binary_output_path_file = os.path.join(config['output_dir'], filename_conf['binary_output_path'])
     if not os.path.exists(binary_output_path_file) or not os.path.isfile(binary_output_path_file):
@@ -255,12 +215,7 @@ def build_data(config):
 
 
 def token_embedding_generation(config):
-    """
-    生成Token嵌入
-    :param article_file:
-    :param output_dir
-    :return:
-    """
+    
     word2vec_conf = config['word2vec']
     filename_conf = config['file_names']
     targets, contexts, labels = read_training_data(config)
@@ -295,11 +250,7 @@ def token_embedding_generation(config):
 
 
 def read_token_embedding(token_embedding_file):
-    """
-    读取Token嵌入
-    :param token_embedding_file:
-    :return:
-    """
+    
     token_embedding_dict = dict()
     inverse_vocab = []
     line_mum = 1
@@ -320,12 +271,7 @@ def read_token_embedding(token_embedding_file):
 
 
 def cal_block_embedding(inverse_vocab, token_embedding, tokens):
-    """
-    计算块嵌入
-    :param token_embedding:
-    :param tokens:
-    :return:
-    """
+    
     block_embs = []
     for token in tokens:
         if token in inverse_vocab:
@@ -338,17 +284,13 @@ def cal_block_embedding(inverse_vocab, token_embedding, tokens):
 
 
 def block_embedding_generation(config):
-    """
-    生成块的嵌入
-    :param node_index_to_code_file:
-    :return:
-    """
+    
     filename_conf = config['file_names']
     output_dir = config['output_dir']
 
     binary_output_path_file = os.path.join(output_dir, filename_conf['binary_output_path'])
     if not os.path.exists(binary_output_path_file) or not os.path.isfile(binary_output_path_file):
-        raise ValueError('请先构建二进制文件的信息')
+        raise ValueError('err')
 
     binary_output_path_files = []
     for line in io.open(binary_output_path_file, 'r'):
@@ -358,11 +300,11 @@ def block_embedding_generation(config):
                 binary_output_path_files.append(filename)
 
     if len(binary_output_path_files) == 0:
-        raise ValueError('请先构建二进制文件的信息')
+        raise ValueError('err')
 
     token_embedding_file = os.path.join(output_dir, filename_conf['word2vec_token_embedding'])
     if not os.path.exists(token_embedding_file) or not os.path.isfile(token_embedding_file):
-        raise ValueError('请先构建Word2Vec的数据集')
+        raise ValueError('err')
 
     inverse_vocab, token_embedding = read_token_embedding(token_embedding_file)
 
