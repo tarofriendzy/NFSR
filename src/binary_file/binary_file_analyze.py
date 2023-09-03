@@ -12,9 +12,8 @@ from angrutils import *
 
 class graph(object):
     """
-    函数的CFG
+    CFG
     """
-
     def __init__(self, name, node_num, binary_name, has_return, is_plt, is_syscall, normalized, is_simprocedure,
                  software=None):
         self.name = name
@@ -60,12 +59,11 @@ class graph(object):
 
 def get_cfg(file_name, output_file):
     """
-    获取二进制文件中每个函数的CFG
+    Obtain the CFG (Control Flow Graph) of each function in the binary file
     :param file_name:
     :param output_file:
     :return:
     """
-
     if not os.path.exists(file_name):
         raise Exception('filename error')
     output_dir = os.path.dirname(output_file)
@@ -81,27 +79,14 @@ def get_cfg(file_name, output_file):
         func = cfg.kb.functions[func_addr]
 
         # function info
-        # 函数所在的二进制文件名称
         binary_name = func.binary_name  # str
-
         has_return = func.has_return  # bool
-
-        # 函数是否为 PLT 条目
         is_plt = func.is_plt  # bool
-
-        # 是否为系统调用
         is_syscall = func.is_syscall  # bool
-
-        # 函数名称
         name = func.name  # str, function name
-
-        # 是否归一化(参考Angr与IDA的区别)
         normalized = func.normalized
-
-        # 函数是否为简单程序
         is_simprocedure = func.is_simprocedure  # bool
 
-        # 无法解析的函数
         if name == 'UnresolvableJumpTarget' or name == 'UnresolvableCallTarget':
             continue
 
@@ -110,16 +95,13 @@ def get_cfg(file_name, output_file):
         if name != 'close_stdout':
             continue
 
-        # 图信息
         func_graph = func.graph
 
-        # 节点数
         graph_num = len(list(func_graph.nodes()))
 
         if len(func.block_addrs) != graph_num:
-            raise Exception('节点数量有异')
+            raise Exception('error')
 
-        # 对节点进行编号
         nodes = {}
         nodes_des = {}
         node_id = 0
@@ -128,15 +110,12 @@ def get_cfg(file_name, output_file):
             nodes_des[node_id] = node
             node_id += 1
 
-        # 遍历节点
-        # 边，节点
         edges_info = []
         nodes_info = []
         for node_id in range(len(nodes.keys())):
             node = nodes_des[node_id]
 
             # nodes_info.append([])
-            # 基本块指令
             block = project.factory.block(node.addr)
             content = block.pp(show_addresses=False, show_lable=False, show_edges=False)
             if len(content) == 0:
@@ -151,7 +130,6 @@ def get_cfg(file_name, output_file):
             #     insn_list.append(token + ' ' + opstrs)
             # nodes_info.append(insn_list)
 
-            # 边的信息
             successors = func_graph.successors(node)
             edges = []
             for succ in successors:
@@ -175,7 +153,6 @@ def get_cfg(file_name, output_file):
 
 def read_cfg(file_name, software=None):
     """
-    读取CFG
     :param file_name:
     :return:
     """
@@ -201,7 +178,6 @@ def read_cfg(file_name, software=None):
 
 def is_elf_file(filepath):
     """
-    判断文件是否是elf文件
     :param filepath:
     :return:
     """
@@ -223,12 +199,6 @@ def is_elf_file(filepath):
 
 
 def get_all_file(binary_dir, output_dir, judge_elf=True):
-    """
-    获取某目录下的所有的ELF文件，并生成输出路径
-    :param binary_dir:
-    :param output_dir:
-    :return:
-    """
     binary_files = []
     output_files = []
 
@@ -288,10 +258,8 @@ def save_graph_object(file_name, output_file):
     for func_addr in iter(funcs_addr_set):
         func = cfg.kb.functions[func_addr]
 
-        # 函数名称
         name = func.name  # str, function name
 
-        # 无法解析的函数
         if name == 'UnresolvableJumpTarget' or name == 'UnresolvableCallTarget':
             continue
 
@@ -300,10 +268,7 @@ def save_graph_object(file_name, output_file):
         # if name != 'close_stdout':
         #     continue
 
-        # 图信息
         func_graph = func.graph
-
-        # 保存图
         nx.write_gpickle(func_graph, output_file + '.gpickle')
         nx.draw(func_graph,
                 pos=nx.kamada_kawai_layout(func_graph),
@@ -325,50 +290,3 @@ def save_graph_svg(graph_file_name, output_file):
     plt.draw()
     # plt.show()
     plt.savefig(output_file + '.svg', format='svg')
-
-
-if __name__ == '__main__':
-    # file_name = '../data/test/chroot'
-    # output_file = '../data/test/chroot'
-    # file_name = 'E:\\Binary Source\\MIPS32\\openssl-1.0.1f-O3\\openssl'
-    output_file = './func_set_hex/set_hex_x8632_O3.json'
-    # save_graph_object(file_name, output_file)
-
-    with open(output_file) as inf:
-        for line in inf:
-            if len(line.strip()) == 0:
-                continue
-
-            g_info = json.loads(line.strip())
-            for u in range(g_info['node_num']):
-                node_content = np.array(g_info['nodes'][u])
-                print(node_content)
-                print()
-
-
-    # file_name = 'E:\\Binary Source\\X8632\\openssl-1.0.1f-O3\\openssl'
-    # output_file = './set_hex_x8632_O3.json'
-    # output_file = 'E:\\Binary Source\\Analysis\\trex\\arm-32\\openssl-1.0.1f-O0\\openssl.json'
-    # file_name = '../data/test/simple0/simple0'
-    # output_file = '../data/test/simple0/simple0.json'
-    # file_name = '../data/test/libmicrohttpd.a'
-    # output_file = '../data/test/libmicrohttpd.a.json'
-    # get_cfg(file_name, output_file)
-    # graphs = read_cfg(output_file)
-    # uzip_a(file_name)
-
-    # so_dir = 'E:\\Binary Source\\trex\\elf'
-    # output_dir = 'E:\\Binary Source\\trex\\analysis'
-    # so_files, output_files = get_all_file(so_dir, output_dir)
-    # for i in range(len(so_files)):
-    #     print(so_files[i])
-    #     try:
-    #         get_cfg(so_files[i], output_files[i] + '.json')
-    #     except:
-    #         print('Error ', so_files[i])
-
-    # 处理AR文件
-    # ar_file_dir = 'E:\\Binary Source\\trex\\ELF_ar'
-    # ar_files, _ = get_all_file(ar_file_dir, ar_file_dir, judge_elf=False)
-    # for ar_file in ar_files:
-    #     uzip_ar(ar_file)
